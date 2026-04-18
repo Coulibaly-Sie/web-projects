@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --sidebar: #1e293b;
+      --sidebar-hover: #334155;
+      --sidebar-active: #6c63ff;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #6c63ff;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      padding: 0 24px 28px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+      border-bottom: 1px solid #334155;
+    }
+
+    .sidebar-logo span { color: var(--primary); }
+
+    .sidebar-section {
+      padding: 20px 16px 8px;
+      font-size: 0.68rem;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 24px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 0;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+    .nav-item.active { background: var(--sidebar-hover); color: #fff; border-left-color: var(--primary); }
+
+    .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 20px 24px;
+      border-top: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar-sm {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .user-info-sm { overflow: hidden; }
+    .user-name-sm { font-size: 0.85rem; color: #fff; font-weight: 600; white-space: nowrap; }
+    .user-role-sm { font-size: 0.72rem; color: #64748b; }
+
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* HEADER */
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-title { font-size: 1.1rem; font-weight: 700; }
+    .breadcrumb { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    .notif-btn {
+      position: relative;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .notif-btn:hover { background: var(--border); }
+
+    .notif-dot {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 8px; height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+      border: 2px solid var(--card);
+    }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 12px 6px 6px;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #a78bfa);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 0.75rem; font-weight: 700;
+    }
+
+    .user-chip-name { font-size: 0.85rem; font-weight: 600; }
+
+    /* CONTENT */
+    .content { padding: 28px; flex: 1; }
+
+    /* STAT CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 28px; }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 35px rgba(0,0,0,0.07); }
+
+    .stat-card-top { display: flex; align-items: center; justify-content: space-between; }
+
+    .stat-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem;
+    }
+
+    .stat-icon.purple { background: #ede9ff; }
+    .stat-icon.green  { background: #dcfce7; }
+    .stat-icon.orange { background: #fef3c7; }
+    .stat-icon.blue   { background: #dbeafe; }
+
+    .stat-change {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .stat-change.up   { background: #dcfce7; color: #16a34a; }
+    .stat-change.down { background: #fee2e2; color: #dc2626; }
+
+    .stat-value { font-size: 1.75rem; font-weight: 800; line-height: 1; }
+    .stat-label { font-size: 0.8rem; color: var(--muted); }
+
+    /* BOTTOM GRID */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    .panel {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-header h3 { font-size: 0.95rem; font-weight: 700; }
+
+    .panel-badge {
+      font-size: 0.72rem;
+      background: var(--bg);
+      color: var(--muted);
+      padding: 3px 10px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+    }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 11px 22px;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { transition: background 0.15s; }
+    tbody tr:hover { background: #f8fafc; }
+    tbody td { padding: 12px 22px; font-size: 0.87rem; border-bottom: 1px solid var(--border); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .status-badge.livré    { background: #dcfce7; color: #16a34a; }
+    .status-badge.en-cours { background: #fef3c7; color: #d97706; }
+    .status-badge.annulé   { background: #fee2e2; color: #dc2626; }
+
+    /* BAR CHART */
+    .chart-area { padding: 20px 22px; }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      height: 160px;
+      padding-bottom: 24px;
+      position: relative;
+    }
+
+    .chart-bars::after {
+      content: '';
+      position: absolute;
+      bottom: 24px; left: 0; right: 0;
+      border-top: 1px dashed var(--border);
+    }
+
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+    .bar {
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+      background: linear-gradient(to top, var(--primary), #a78bfa);
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+
+    .bar:hover { opacity: 0.8; }
+
+    .bar-label { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">Admin<span>.</span>io</div>
+
+    <span class="sidebar-section">Principal</span>
+    <div class="nav-item active"><span class="nav-icon">🏠</span> Tableau de bord</div>
+    <div class="nav-item"><span class="nav-icon">📊</span> Analytique</div>
+    <div class="nav-item"><span class="nav-icon">🛒</span> Commandes</div>
+    <div class="nav-item"><span class="nav-icon">👥</span> Utilisateurs</div>
+
+    <span class="sidebar-section">Gestion</span>
+    <div class="nav-item"><span class="nav-icon">📦</span> Produits</div>
+    <div class="nav-item"><span class="nav-icon">🏷️</span> Promotions</div>
+    <div class="nav-item"><span class="nav-icon">💬</span> Messages</div>
+
+    <span class="sidebar-section">Système</span>
+    <div class="nav-item"><span class="nav-icon">⚙️</span> Paramètres</div>
+    <div class="nav-item"><span class="nav-icon">🔒</span> Sécurité</div>
+
+    <div class="sidebar-footer">
+      <div class="user-avatar-sm">AL</div>
+      <div class="user-info-sm">
+        <div class="user-name-sm">Alex Laurent</div>
+        <div class="user-role-sm">Administrateur</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header>
+      <div>
+        <div class="header-title">Tableau de bord</div>
+        <div class="breadcrumb">Admin / Vue d'ensemble</div>
+      </div>
+      <div class="header-right">
+        <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+        <div class="user-chip">
+          <div class="user-avatar">AL</div>
+          <span class="user-chip-name">Alex Laurent</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-top">
+            <div class="stat-icon purple">👥</div>
+            <span class="stat-change up">+12%</span>
+          </div>
+          <div>
+            <div class="stat-value">24,521</div>
+            <div class="stat-label">Utilisateurs actifs</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-top">
+            <div class="stat-icon green">💰</div>
+            <span class="stat-change up">+8.4%</span>
+          </div>
+          <div>
+            <div class="stat-value">€48,390</div>
+            <div class="stat-label">Revenus ce mois</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-top">
+            <div class="stat-icon orange">🛒</div>
+            <span class="stat-change down">−3.1%</span>
+          </div>
+          <div>
+            <div class="stat-value">1,284</div>
+            <div class="stat-label">Nouvelles commandes</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-top">
+            <div class="stat-icon blue">📈</div>
+            <span class="stat-change up">+2.5%</span>
+          </div>
+          <div>
+            <div class="stat-value">68.3%</div>
+            <div class="stat-label">Taux de conversion</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM -->
+      <div class="bottom-grid">
+
+        <!-- TABLE -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Dernières commandes</h3>
+            <span class="panel-badge">Aujourd'hui</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Montant</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Marie Dupont</td>
+                <td>€129.00</td>
+                <td><span class="status-badge livré">Livré</span></td>
+              </tr>
+              <tr>
+                <td>Lucas Bernard</td>
+                <td>€84.50</td>
+                <td><span class="status-badge en-cours">En cours</span></td>
+              </tr>
+              <tr>
+                <td>Emma Rousseau</td>
+                <td>€210.00</td>
+                <td><span class="status-badge livré">Livré</span></td>
+              </tr>
+              <tr>
+                <td>Paul Martin</td>
+                <td>€45.90</td>
+                <td><span class="status-badge annulé">Annulé</span></td>
+              </tr>
+              <tr>
+                <td>Sophie Moreau</td>
+                <td>€178.30</td>
+                <td><span class="status-badge en-cours">En cours</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- BAR CHART -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Revenus mensuels</h3>
+            <span class="panel-badge">2025</span>
+          </div>
+          <div class="chart-area">
+            <div class="chart-bars">
+              <div class="bar-wrap"><div class="bar" style="height:55%"></div><span class="bar-label">Jan</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:70%"></div><span class="bar-label">Fév</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:45%"></div><span class="bar-label">Mar</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:80%"></div><span class="bar-label">Avr</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:65%"></div><span class="bar-label">Mai</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:90%"></div><span class="bar-label">Jun</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:75%"></div><span class="bar-label">Jul</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:85%"></div><span class="bar-label">Aoû</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:60%"></div><span class="bar-label">Sep</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:95%"></div><span class="bar-label">Oct</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:78%"></div><span class="bar-label">Nov</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:100%"></div><span class="bar-label">Déc</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Navigation active
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>
